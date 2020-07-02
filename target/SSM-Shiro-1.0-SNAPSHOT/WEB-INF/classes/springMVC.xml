@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--  @AspectJ支持，要在使用@AspectJ自动代理支持时强制CGLIB代理，请将<aop:aspectj-autoproxy>元素的proxy-target-class属性设置true -->
+    <aop:aspectj-autoproxy/>
+<!--  切面包扫描  -->
+    <context:component-scan base-package="Aop"/>
+
+    <!--  要强制使用CGLIB代理，请将<aop:config>元素的proxy-target-class属性值设置为true  -->
+    <aop:config>
+        <aop:aspect id="aspect2" ref="aop2">
+            <aop:pointcut id="pointcut2" expression="execution(* controller..*.*(..))"/>
+            <aop:before pointcut-ref="pointcut2" method="sayOk"/>
+            <aop:after method="sayOk2" pointcut-ref="pointcut2"/>
+        </aop:aspect>
+    </aop:config>
+
+    <bean id="aop2" class="Aop.Aop2"></bean>
+<!--  注解驱动  -->
+<!--    <context:annotation-config />-->
+    <mvc:annotation-driven/>
+<!--注解包扫描-->
+    <context:component-scan base-package="controller"/>
+
+    <!-- 定义跳转的文件的前后缀 ，视图模式配置-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <!-- 这里的配置我的理解是自动给后面action的方法return的字符串加上前缀和后缀，变成一个 可用的url地址 -->
+        <property name="prefix" value="/pages/"/>
+        <property name="suffix" value=".html"/>
+    </bean>
+
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--上传文件的最大大小，单位为字节 -->
+        <property name="maxUploadSize" value="10485760"/>
+        <!-- 上传文件的编码 -->
+        <property name="defaultEncoding" value="UTF-8"></property>
+
+    </bean>
+
+<!--  将静态资源的处理经由Spring MVC框架交回Web应用服务器处理  -->
+    <mvc:default-servlet-handler/>
+
+<!--  由Spring MVC框架自己处理静态资源，并添加一些有用的附加值功能  -->
+    <mvc:resources mapping="/images/**" location="/images/"/>
+    
+</beans>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!--  @AspectJ支持  -->
+<!--    <aop:aspectj-autoproxy/>-->
+<!--    <context:component-scan base-package="Aop"/>-->
+
+<!--  read property from jdbc.properties file  -->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+<!--  注解包扫描  -->
+    <context:component-scan base-package="mapper"/>
+    <context:component-scan base-package="serviceImpl"/>
+
+<!--  config mybatis  -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+<!--        <property name="mapperLocations" value="classpath:mapper/*.xml"/>-->
+    </bean>
+
+    <bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+<!--  JDBC事务管理  -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+<!--如果使用基于注解的事务管理，需要启动事物管理注解-->
+<!--    <tx:annotation-driven transaction-manager="txManager"/>-->
+<!--  事务配置  -->
+<!--    <bean id="fooService" class="transaction.DefaultFooService"/>-->
+<!--    <tx:advice id="txAdvice" transaction-manager="txManager">-->
+<!--        <tx:attributes>-->
+<!--            &lt;!&ndash; all methods starting with 'get' are read-only &ndash;&gt;-->
+<!--            <tx:method name="get*" read-only="true"/>-->
+<!--            &lt;!&ndash; other methods use the default transaction settings (see below) &ndash;&gt;-->
+<!--            <tx:method name="*"/>-->
+<!--            &lt;!&ndash; rollback transaction  &ndash;&gt;-->
+<!--            <tx:method name="get*" rollback-for="xxxException" no-rollback-for="xxxException"/>-->
+<!--        </tx:attributes>-->
+<!--    </tx:advice>-->
+<!--    <aop:config>-->
+<!--        <aop:pointcut id="fooServiceOperation" expression="execution(* transaction..*.*(..))"/>-->
+<!--        <aop:advisor advice-ref="txAdvice" pointcut-ref="fooServiceOperation"/>-->
+<!--    </aop:config>-->
+
+</beans>
